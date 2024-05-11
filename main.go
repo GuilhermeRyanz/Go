@@ -1,33 +1,34 @@
 package main
 
-import "fmt"
+import (
+	"net/http"
+	"strconv"
 
-func quickSort(lista []int) []int {
-	if len(lista) <= 1 {
-		return lista
+	"github.com/gin-gonic/gin"
+)
+
+func fatorial(n int) int {
+
+	if n == 0 {
+		return 1
 	}
-
-	pivor := lista[len(lista)-1]
-	var esq, dir []int
-
-	for _, v := range lista[:len(lista)-1] {
-		if v <= pivor {
-			esq = append(esq, v)
-		} else {
-			dir = append(dir, v)
-		}
-	}
-
-	esq = quickSort(esq)
-	dir = quickSort(dir)
-
-	return append(append(esq, pivor), dir...)
+	return n * fatorial(n-1)
 }
 
 func main() {
-	lista := []int{12, 11, 13, 5, 6, 7}
-	fmt.Println(lista)
+	router := gin.Default()
+	router.LoadHTMLGlob("templates/*")
 
-	lista = quickSort(lista)
-	fmt.Println(lista)
+	router.GET("/", func(ctx *gin.Context) {
+		ctx.HTML(http.StatusOK, "index.html", nil)
+	})
+
+	router.GET("/fatorial", func(ctx *gin.Context) {
+		num, _ := strconv.Atoi(ctx.Query("num"))
+		result := fatorial(num)
+		ctx.JSON(http.StatusOK, gin.H{"result": result})
+	})
+
+	router.Run(":8080")
+
 }
